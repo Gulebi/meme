@@ -9,14 +9,80 @@
     </head>
     <body>
         <div class="container">
-            <div id="canvas-block">
+            <div class="row">
+                <div id="image-block" style="width: 384px; height: 384px">
+                    <img />
+                    <div class="text-block" style="left: 0px; top: 0px">
+                        <div class="drag-area" onmousedown="down(event)"></div>
+                        <textarea class="text-input" placeholder="Text"></textarea>
+                    </div>
+                </div>
                 <canvas width="384" height="384"></canvas>
             </div>
-            <div id="controls-block">
-                <input type="file" id="image-input" />
-                <button id="add-image-btn">Add Image</button>
+            <div class="row">
+                <div id="controls-block">
+                    <input type="file" id="image-input" />
+                    <button id="add-image-btn">Add Image</button>
+                    <button>Refresh</button>
+                </div>
             </div>
         </div>
         <script src="./script.js"></script>
+        <script>
+            const textarea = document.querySelector("textarea");
+
+            textarea.addEventListener("input", () => changeHeight());
+
+            const changeHeight = () => {
+                textarea.style.height = "auto";
+                textarea.style.height = `${textarea.scrollHeight}px`;
+            };
+        </script>
+        <script>
+            const container = document.querySelector("#image-block");
+
+            let isDragging = false;
+            let dragX, dragY;
+
+            const down = (event) => {
+                isDragging = true;
+                dragX = event.clientX;
+                dragY = event.clientY;
+            };
+
+            document.addEventListener("mousemove", (event) => {
+                const draggable = event.composedPath()[1];
+
+                if (isDragging) {
+                    const containerRect = container.getBoundingClientRect();
+                    const draggableRect = draggable.getBoundingClientRect();
+                    const draggableLeft = parseInt(draggable.style.left);
+                    const draggableTop = parseInt(draggable.style.top);
+
+                    const dx = event.clientX - dragX;
+                    const dy = event.clientY - dragY;
+
+                    const newLeft = draggableLeft + dx;
+                    const newTop = draggableTop + dy;
+
+                    if (
+                        newLeft >= 0 &&
+                        newLeft + draggableRect.width <= containerRect.width &&
+                        newTop >= 0 &&
+                        newTop + draggableRect.height <= containerRect.height
+                    ) {
+                        draggable.style.left = `${newLeft}px`;
+                        draggable.style.top = `${newTop}px`;
+
+                        dragX = event.clientX;
+                        dragY = event.clientY;
+                    }
+                }
+            });
+
+            document.addEventListener("mouseup", () => {
+                isDragging = false;
+            });
+        </script>
     </body>
 </html>
